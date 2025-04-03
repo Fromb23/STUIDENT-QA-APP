@@ -147,3 +147,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function toggleSubcribeButton() {
+    const emailInput = document.getElementById("email");
+    const subscribeButton = document.getElementById("subscribeButton");
+
+    if (emailInput.value.trim() === "") {
+        subscribeButton.disabled = true;
+    }
+    else {
+        subscribeButton.disabled = false;
+    }
+}

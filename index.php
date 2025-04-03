@@ -200,13 +200,52 @@ if ($selected_question_id) {
             </div>
         </aside>
     </div>
-    <section id="about" class=" border-b h-screen bg-white flex items-center justify-center mt-4 gap-4 mx-10">
-    <h2 class="text-2xl font-semibold">About Us</h2>
-</section>
-
-    <section id="contact" class="mt-4 mx-10 h-screen bg-white flex items-center justify-center">
-        <h2 class="text-2xl font-semibold">Contact Us</h2>
+    <div class="container mx-auto mt-4 flex flex-col gap-4 flex-grow px-2">
+    <!-- About Us Section -->
+    <section id="about" class="bg-gray-100 p-4 rounded-lg shadow-md flex-1">
+        <h2 class="flex justify-center items-center text-2xl font-semibold mb-2">About Us</h2>
+        <p class="mb-2">
+            Welcome to our Question and Answer forum! This platform is designed for learners who want to share knowledge, 
+            ask questions, and engage in meaningful discussions. Whether you have a complex programming question or need help 
+            understanding a concept, this is the place for you.
+        </p>
+        <p class="mb-2">
+            Users can create an account and start participating in discussions right away. The platform encourages collaborative 
+            learning, allowing members to upvote valuable answers and contribute their expertise.
+        </p>
+        <p>
+            We also support group discussions, so learners can form study groups and collaborate on topics of interest. Our 
+            mission is to create a community-driven space where knowledge flows freely, just like Stack Overflow but tailored 
+            for deeper engagement and interactive learning.
+        </p>
     </section>
+
+    <section id="contact" class="bg-gray-100 p-4 rounded-lg shadow-md flex-1">
+        <h2 class="text-2xl font-semibold mb-2 flex justify-center">Contact Us</h2>
+
+        <form class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700">Subscribe to our Newsletter</label>
+            <div class="flex mt-2 flex-col sm:flex-row sm:items-center sm:space-x-2">
+                <input type="email" id="email" name="email" placeholder="Enter your email"
+                    class="md:w-1/4 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring focus:ring-blue-400">
+                <button type="submit" id="subscribeButton" class="px-2 mt-2 sm:mt-0 bg-blue-600 text-white py-2 rounded-r-lg hover:bg-blue-700">
+                    Subscribe
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-4">
+            <p class="text-sm font-medium text-gray-700">Email:</p>
+            <a href="mailto:qaforum@gmail.com" class="text-blue-600 hover:underline">qaforum@gmail.com</a>
+        </div>
+
+        <div class="mt-2">
+            <p class="text-sm font-medium text-gray-700">Phone:</p>
+            <p class="text-gray-800">+254 712 345 678</p>
+        </div>
+    </section>
+</div>
+
 
     <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
         &copy; 2025 Question and Answer Forum
