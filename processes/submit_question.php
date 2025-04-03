@@ -16,7 +16,7 @@ if (!empty($description)) {
     $success = $question->createQuestion($user_id, $description);
 
     if ($success) {
-        header("Location: ../index.php");
+        header("Location: ../qa.php");
         exit();
     } else {
         echo "Error: Failed to post question!";

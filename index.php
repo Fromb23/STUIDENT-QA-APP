@@ -1,27 +1,9 @@
 <?php
 session_start();
-require __DIR__ . "/config/db.php";
-require __DIR__ . "/models/Question.php";
-require __DIR__ . "/models/Response.php";
-
-$questionModel = new Question($conn);
-$questions = $questionModel->getAllQuestions();
-$responseModel = new Response($conn);
 
 $profile_icon = $_SESSION['profile_icon'] ?? null;
 $username = $_SESSION['username'] ?? null;
 $first_letter = $username ? strtoupper(substr($username, 0, 1)) : null;
-
-$selected_question_id = $_GET['question_id'] ?? $_SESSION['selected_question_id'] ?? null;
-
-if ($selected_question_id) {
-    $_SESSION['selected_question_id'] = $selected_question_id;
-    $selected_question = $questionModel->getQuestionById($selected_question_id);
-    $responses = $responseModel->getResponsesByQuestionId($selected_question_id);
-} else {
-    $selected_question = null;
-    $responses = [];
-}
 ?>
 
 <!DOCTYPE html>
@@ -67,186 +49,63 @@ if ($selected_question_id) {
             </div>
         <?php endif; ?>
     </header>
+    
+    <div class="container mx-auto mt-4 flex flex-col  gap-4 flex-grow px-2">
+        <div class="w-full flex flex-col md:flex-row justify-center items-center gap-4">
+            <div class="w-full md:w-1/2 my-6 md:my-12 relative">
+                <img src="./uploads/signin.jpg" alt="Sign In Image" class="h-full w-full object-cover rounded-md">
+                <div class="bg-black opacity-70 absolute top-0 right-0 left-0 bottom-0 rounded-md flex items-center justify-center text-white">
+                    <div class="flex space-y-2 md:space-x-4 flex-col md:flex-row">
+                        <?php if (!$username): ?>
+                            <a href="./public/signin.php" class="bg-black border border-white text-white px-4 py-2 rounded-full">Get Started</a>
+                        <?php endif; ?>
 
-    <div class="container mx-auto mt-4 flex flex-col sm:flex-row gap-4 flex-grow px-2">
-
-        <aside class="w-full sm:w-1/4 bg-white p-4 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">Latest Questions</h2>
-            <?php if (!empty($questions)): ?>
-                <?php foreach ($questions as $q): ?>
-                    <div class="question-card border-b border-gray-300 pb-2 mb-2 cursor-pointer" onclick="location.href='?question_id=<?= $q['id'] ?>'">
-                        <p class="text-md font-medium"><?= htmlspecialchars($q['description']) ?></p>
-                        <p class="text-sm text-gray-600">By <strong><?= htmlspecialchars($q['username']) ?></strong> - <?= date('F j, Y, g:i a', strtotime($q['created_at'])) ?></p>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-gray-500">No questions in this forum yet.</p>
-            <?php endif; ?>
-        </aside>
-
-        <main id="main-content" class="flex-1 bg-white p-4 rounded shadow">
-            <?php if ($selected_question): ?>
-                <h2 class="text-xl font-semibold"><?= htmlspecialchars($selected_question['description']) ?></h2>
-
-                <div id="response-section" class="mt-4">
-                    <div id="response-list" class="mt-2 border-t pt-2 text-gray-700">
-                        <?php
-                        // Recursive function to display responses
-                        function displayResponse($response, $level = 0) {
-                            $username = $response['username'] ?? 'Anonymous';
-                            $marginLeft = $level * 20;
-                            $replyCount = count($response['children']);
-                            ?>
-                            <div class="border-t py-4 flex justify-between items-center group response-item border-l pl-4"
-                                data-id="<?= $response['id'] ?>"
-                                style="margin-left: <?= $marginLeft ?>px;"
-                                >
-                                <div class="w-full">
-                                    <p class="cursor-pointer">
-                                        <span class="font-medium"><?= htmlspecialchars($username) ?>:</span>
-                                        <?= htmlspecialchars($response['content']) ?>
-                                    </p>
-                                    <p class="text-xs text-gray-400 mt-1">
-                                        <?= date('F j, Y, g:i a', strtotime($response['created_at'])) ?>
-                                    </p>
-                                    <?php if ($replyCount > 0): ?>
-                                        <button class="toggle-thread text-blue-500 text-sm" data-id="<?= $response['id'] ?>">
-                                            View (<?= $replyCount ?>) Replies ▼
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="flex space-x-3 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <!-- Like/Unlike -->
-                                    <button class="like-btn hover:text-blue-500" data-id="<?= $response['id'] ?>">
-                                        <i data-lucide="heart"></i>
-                                    </button>
-                                    <!-- Edit -->
-                                    <button class="edit-btn hover:text-green-500" data-id="<?= $response['id'] ?>">
-                                        <i data-lucide="pencil"></i>
-                                    </button>
-                                    <!-- Delete -->
-                                    <button class="delete-btn hover:text-red-500" data-id="<?= $response['id'] ?>">
-                                        <i data-lucide="trash"></i>
-                                    </button>
-                                    <!-- Share -->
-                                    <button class="share-btn hover:text-blue-500" data-id="<?= $response['id'] ?>">
-                                        <i data-lucide="share"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- Reply Form (Initially Hidden) -->
-                            <div class="hidden ml-6 mt-2 response-reply-form" data-id="<?= $response['id'] ?>">
-                                <input type="text" class="w-full border rounded p-2 text-sm" placeholder="Reply to this response..." />
-                                <button onclick="setParentResponseId(<?= $response['id'] ?>)" class="mt-1 px-4 py-1 bg-blue-500 text-white text-xs rounded send-reply-btn" data-id="<?= $response['id'] ?>">
-                                    Reply
-                                </button>
-                            </div>
-
-                            <!-- Child Replies (Initially Hidden) -->
-                            <?php if (!empty($response['children'])): ?>
-                                <div class="child-comments" id="thread-<?= $response['id'] ?>"
-                                style="display: none; margin-left: <?= $marginLeft + 20 ?>px; border-left: 2px solid #ccc; padding-left: 10px;">
-                                <?php foreach ($response['children'] as $child) {
-                                    displayResponse($child, $level + 1);
-                                } ?>
-                                </div>
-                            <?php endif; ?>
-                            <?php } ?>
-
-                        <!-- Display all responses -->
-                        <?php
-                        if (!empty($responses)) {
-                            foreach ($responses as $response) {
-                                displayResponse($response);
-                            }
-                        } else {
-                            echo '<p class="text-gray-500">No responses yet. Be the first to respond!</p>';
-                        }
-                        ?>
+                            <a href="qa.php" class="bg-black border border-red-500 text-red-500 px-4 py-2 rounded-full">Go to Forum</a>
                     </div>
                 </div>
-
-                <?php if ($username): ?>
-                    <form id="response-form" action="processes/submit_response.php" method="POST" class="mt-4">
-                        <input type="hidden" name="question_id" value="<?= $selected_question_id ?>">
-                        <input type="hidden" name="parent_response_id" id="parent_response_id" value="">
-                        <textarea name="content" placeholder="Post a response..." required class="w-full p-2 border rounded-md"></textarea>
-                        <button type="submit" class="mt-2 bg-blue-500 text-white py-2 px-4 rounded">Post Response</button>
-                    </form>
-                <?php else: ?>
-                    <p class="text-gray-500 mt-4">Sign in to post responses.</p>
-                <?php endif; ?>
-            <?php else: ?>
-                <h2 class="text-xl font-semibold">Welcome to the Forum</h2>
-                <p class="text-gray-700 mt-2">Ask questions, get answers, and share knowledge!</p>
-            <?php endif; ?>
-
-            <hr class="my-4">
-            <h3 class="text-lg font-semibold">Ask a New Question</h3>
-            <?php if ($username): ?>
-                <form action="processes/submit_question.php" method="POST" class="mt-4">
-                    <textarea name="description" placeholder="Ask a question..." required class="w-full p-2 border rounded-md"></textarea>
-                    <button type="submit" class="mt-2 bg-green-500 text-white py-2 px-4 rounded">Ask Question</button>
-                </form>
-            <?php else: ?>
-                <p class="text-gray-500 mt-4">Sign in to ask questions.</p>
-            <?php endif; ?>
-        </main>
-
-        <aside class="w-full sm:w-1/4 bg-white p-4 rounded shadow">
-            <h2 class="text-lg font-semibold">Latest Discussions</h2>
-            <div class="mt-2 border-t pt-2">
-                <p class="text-sm text-gray-600">No discussions yet...</p>
             </div>
-        </aside>
-    </div>
-    <div class="container mx-auto mt-4 flex flex-col gap-4 flex-grow px-2">
-    <!-- About Us Section -->
-    <section id="about" class="bg-gray-100 p-4 rounded-lg shadow-md flex-1">
-        <h2 class="flex justify-center items-center text-2xl font-semibold mb-2">About Us</h2>
-        <p class="mb-2">
-            Welcome to our Question and Answer forum! This platform is designed for learners who want to share knowledge, 
-            ask questions, and engage in meaningful discussions. Whether you have a complex programming question or need help 
-            understanding a concept, this is the place for you.
-        </p>
-        <p class="mb-2">
-            Users can create an account and start participating in discussions right away. The platform encourages collaborative 
-            learning, allowing members to upvote valuable answers and contribute their expertise.
-        </p>
-        <p>
-            We also support group discussions, so learners can form study groups and collaborate on topics of interest. Our 
-            mission is to create a community-driven space where knowledge flows freely, just like Stack Overflow but tailored 
-            for deeper engagement and interactive learning.
-        </p>
-    </section>
-
-    <section id="contact" class="bg-gray-100 p-4 rounded-lg shadow-md flex-1">
+            <div id="about" class="w-full md:w-1/2 p-4 rounded-lg shadow-xs p-4 h-max">
+                <h2 class="flex justify-center items-center text-2xl font-semibold mb-2">About Us</h2>
+                <p class="mb-2 text-md md:text-lg">
+                    Welcome to our Question and Answer forum! This platform is designed for learners who want to share knowledge, 
+                    ask questions, and engage in meaningful discussions. Whether you have a complex programming question or need help 
+                    understanding a concept, this is the place for you.
+                </p>
+                <p class="mb-2 text-md md:text-lg">
+                    Users can create an account and start participating in discussions right away. The platform encourages collaborative 
+                    learning, allowing members to upvote valuable answers and contribute their expertise.
+                </p>
+                <p class="text-md md:text-lg">
+                    We also support group discussions, so learners can form study groups and collaborate on topics of interest. Our 
+                    mission is to create a community-driven space where knowledge flows freely, just like Stack Overflow but tailored 
+                    for deeper engagement and interactive learning.
+                </p>
+            </div>
+        </div>
+<section id="contact" class="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center py-16">
         <h2 class="text-2xl font-semibold mb-2 flex justify-center">Contact Us</h2>
 
-        <form class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700">Subscribe to our Newsletter</label>
-            <div class="flex mt-2 flex-col sm:flex-row sm:items-center sm:space-x-2">
-                <input type="email" id="email" name="email" placeholder="Enter your email"
-                    class="md:w-1/4 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring focus:ring-blue-400">
-                <button type="submit" id="subscribeButton" class="px-2 mt-2 sm:mt-0 bg-blue-600 text-white py-2 rounded-r-lg hover:bg-blue-700">
-                    Subscribe
-                </button>
+        <form class="mb-4 flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-10 md:items-end">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Subscribe to our Newsletter</label>
+                <div class="flex mt-2 flex-col sm:flex-row sm:items-center sm:space-x-2">
+                    <input type="email" id="email" name="email" placeholder="Enter your email"
+                        class="px-4 py-2 border rounded-l-lg focus:outline-none focus:ring focus:ring-blue-400">
+                    <button type="submit" id="subscribeButton" class="px-2 mt-2 sm:mt-0 bg-blue-600 text-white py-2 rounded-r-lg hover:bg-blue-700">
+                        Subscribe
+                    </button>
+                </div>
+            </div>
+            <div class="">
+                <p class="text-sm font-medium text-gray-700">Email:</p>
+                <a href="mailto:qaforum@gmail.com" class="text-blue-600 hover:underline">qaforum@gmail.com</a>
+            </div>
+            <div class="">
+                <p class="text-sm font-medium text-gray-700">Phone:</p>
+                <p class="text-gray-800">+254 712 345 678</p>
             </div>
         </form>
-
-        <div class="mt-4">
-            <p class="text-sm font-medium text-gray-700">Email:</p>
-            <a href="mailto:qaforum@gmail.com" class="text-blue-600 hover:underline">qaforum@gmail.com</a>
-        </div>
-
-        <div class="mt-2">
-            <p class="text-sm font-medium text-gray-700">Phone:</p>
-            <p class="text-gray-800">+254 712 345 678</p>
-        </div>
     </section>
-</div>
-
-
     <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
         &copy; 2025 Question and Answer Forum
     </footer>

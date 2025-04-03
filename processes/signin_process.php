@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['username'] = $loggedInUser['username'];
         $_SESSION['profile_icon'] = $loggedInUser['profile_icon'];
 
-        header("Location: ../index.php");
+        header("Location: ../qa.php");
         exit();
     } else {
         error_log("Login failed for email: $email");
