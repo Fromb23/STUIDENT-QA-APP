@@ -36,8 +36,13 @@ if ($selected_question_id) {
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
-    <header class="bg-gray-700 text-white shadow-md p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">QUESTION AND ANSWER</h1>
+    <header class="bg-gray-700 text-white shadow-md p-4 flex flex-col md:flex-row md:justify-between items-center text-center">
+        <h1 class="md:text-xl font-bold">QUESTION AND ANSWER</h1>
+        <nav class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+            <a class="text-white" href="index.php">Home</a>
+            <a class="text-white" href="#about">About Us</a>
+            <a class="text-white" href="#contact">Contact Us</a>
+        </nav>
         <?php if ($username): ?>
             <div class="relative">
                 <button id="dropdown-button" onclick="toggleDropdown()" class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-full">
@@ -195,11 +200,22 @@ if ($selected_question_id) {
             </div>
         </aside>
     </div>
+    <section id="about" class=" border-b h-screen bg-white flex items-center justify-center mt-4 gap-4 mx-10">
+    <h2 class="text-2xl font-semibold">About Us</h2>
+</section>
+
+    <section id="contact" class="mt-4 mx-10 h-screen bg-white flex items-center justify-center">
+        <h2 class="text-2xl font-semibold">Contact Us</h2>
+    </section>
 
     <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
         &copy; 2025 Question and Answer Forum
     </footer>
 
-    <script src="js/main.js" defer></script>
+    <script src="js/main.js" defer>
+        html {
+            scroll-behavior: smooth;
+        }
+    </script>
 </body>
 </html>
