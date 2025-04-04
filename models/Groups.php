@@ -1,30 +1,34 @@
 <?php
-class Groups {
+class Groups
+{
     private $conn;
     private $table = "groups";
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
-    public function updateDescription($group_id, $description) {
+    public function updateDescription($group_id, $description)
+    {
         $query = "UPDATE groups SET description = ? WHERE id = ?";
-    
+
         $stmt = $this->conn->prepare($query);
 
         if ($stmt === false) {
             die('MySQL prepare error: ' . $this->conn->error);
         }
-    
+
         $stmt->bind_param("si", $description, $group_id);
-    
+
         if ($stmt->execute()) {
             return true;
         } else {
             return false;
         }
-    }    
+    }
 
-    public function createGroup($name, $created_by) {
+    public function createGroup($name, $created_by)
+    {
         $query = "INSERT INTO " . $this->table . " (name, created_by, created_at) VALUES (?, ?, NOW())";
         $stmt = $this->conn->prepare($query);
 
@@ -36,13 +40,15 @@ class Groups {
         return $stmt->execute();
     }
 
-    public function getAllGroups() {
+    public function getAllGroups()
+    {
         $query = "SELECT * FROM " . $this->table;
         $result = $this->conn->query($query);
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getGroupById($id) {
+    public function getGroupById($id)
+    {
         $query = "SELECT g.id, g.name, g.created_at, g.description, u.username as created_by_name 
                   FROM  groups g
                   JOIN users u ON g.created_by = u.id
@@ -60,32 +66,34 @@ class Groups {
         }
     }
 
-    public function getMembers($group_id) {
+    public function getMembers($group_id)
+    {
         $query = "SELECT u.id, u.username, u.email, gm.role, gm.joined_at 
                   FROM group_members gm
                   JOIN users u ON gm.user_id = u.id 
                   WHERE gm.group_id = ?
                   ORDER BY gm.joined_at DESC";
-        
+
         $stmt = $this->conn->prepare($query);
-        
+
         if (!$stmt) {
             error_log("Prepare failed: " . $this->conn->error);
             return [];
         }
-        
+
         $stmt->bind_param("i", $group_id);
-        
+
         if (!$stmt->execute()) {
             error_log("Execute failed: " . $stmt->error);
             return [];
         }
-        
+
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    public function getGroupMessages($group_id) {
+    public function getGroupMessages($group_id)
+    {
         $query = "SELECT m.id, m.message, m.created_at, u.username 
                   FROM group_messages m
                   JOIN users u ON m.user_id = u.id
@@ -105,14 +113,15 @@ class Groups {
     }
 
     // In models/Groups.php
-    public function isUserAdmin($group_id, $user_id) {
+    public function isUserAdmin($group_id, $user_id)
+    {
         $query = "SELECT role FROM group_members 
                 WHERE group_id = ? AND user_id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("ii", $group_id, $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
             return $row['role'] === 'admin';
@@ -121,7 +130,8 @@ class Groups {
     }
 
     // Post a message to group
-    public function postMessage($group_id, $user_id, $message) {
+    public function postMessage($group_id, $user_id, $message)
+    {
         $query = "INSERT INTO group_messages (group_id, user_id, message, created_at) VALUES (?, ?, ?, NOW())";
         $stmt = $this->conn->prepare($query);
 
@@ -134,7 +144,8 @@ class Groups {
     }
 
     // Rename a group
-    public function renameGroup($id, $new_name) {
+    public function renameGroup($id, $new_name)
+    {
         $query = "UPDATE " . $this->table . " SET name = ? WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("si", $new_name, $id);
@@ -142,7 +153,8 @@ class Groups {
     }
 
     // Delete a group
-    public function deleteGroup($id) {
+    public function deleteGroup($id)
+    {
         $query = "DELETE FROM " . $this->table . " WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("i", $id);
@@ -150,7 +162,8 @@ class Groups {
     }
 
     // Add user to group
-    public function addMember($group_id, $user_id, $role = 'member') {
+    public function addMember($group_id, $user_id, $role = 'member')
+    {
         $query = "INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, ?)";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("iis", $group_id, $user_id, $role);
@@ -158,11 +171,11 @@ class Groups {
     }
 
     // Remove user from group
-    public function removeMember($group_id, $user_id) {
+    public function removeMember($group_id, $user_id)
+    {
         $query = "DELETE FROM group_members WHERE group_id = ? AND user_id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("ii", $group_id, $user_id);
         return $stmt->execute();
     }
 }
-?>

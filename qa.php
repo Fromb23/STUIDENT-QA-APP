@@ -5,47 +5,38 @@ require __DIR__ . "/models/Question.php";
 require __DIR__ . "/models/Response.php";
 require __DIR__ . "/models/Groups.php";
 
+$userId = $_SESSION['user_id'] ?? null;
+if (!$userId) {
+    die("User is not logged in.");
+}
+
 $groupsModel = new Groups($conn);
 $groups = $groupsModel->getAllGroups();
-$userGroups = [];
 
-$query_user_group = "SELECT g.id, g.name, g.description 
-                    FROM groups g
-                    JOIN user_groups ug ON g.id = ug.group_id
+$userGroups = [];
+$query_user_group = "SELECT g.id 
+                    FROM user_groups ug
+                    JOIN groups g ON ug.group_id = g.id
                     WHERE ug.user_id = ?";
 $stst_user_group = $conn->prepare($query_user_group);
-
 if ($stst_user_group === false) {
     die("Prepare failed: " . $conn->error);
 }
 
-$stst_user_group->bind_param("i", $_SESSION['user_id']);
+$stst_user_group->bind_param("i", $userId);
 $stst_user_group->execute();
 $result_user_group = $stst_user_group->get_result();
 
-
-if ($result_user_group->num_rows > 0) {
-    $in_group = true;
-} else {
-    $in_group = false;
-}
-
-$available_groups = [];
-
-foreach ($groups as $group) {
-    $groupId = $group['id'];
-    $checkQuery = "SELECT * FROM user_groups WHERE group_id = ? AND user_id = ?";
-    $stmt_check = $conn->prepare($checkQuery);
-    $stmt_check->bind_param('ii', $groupId, $userId);
-    $stmt_check->execute();
-    $result = $stmt_check->get_result();
-
-    if ($result->num_rows == 0) {
-        $availableGroups[] = $group;
-    }
-}
 while ($row = $result_user_group->fetch_assoc()) {
     $userGroups[] = $row['id'];
+}
+
+$availableGroups = [];
+
+foreach ($groups as $group) {
+    if (in_array($group['id'], $userGroups)) {
+        $availableGroups[] = $group;
+    }
 }
 
 $questionModel = new Question($conn);
@@ -70,6 +61,7 @@ if ($selected_question_id) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,12 +70,13 @@ if ($selected_question_id) {
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
     <header class="bg-gray-700 text-white shadow-md p-4 flex flex-col md:flex-row md:justify-between items-center text-center">
-       <a href="./qa.php">
-       <h1 class="md:text-xl font-bold">QUESTION AND ANSWER</h1>
-       </a>
+        <a href="./qa.php">
+            <h1 class="md:text-xl font-bold">QUESTION AND ANSWER</h1>
+        </a>
         <nav class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
             <a class="text-white" href="index.php">Home</a>
         </nav>
@@ -136,15 +129,15 @@ if ($selected_question_id) {
                     <div id="response-list" class="mt-2 border-t pt-2 text-gray-700">
                         <?php
                         // Recursive function to display responses
-                        function displayResponse($response, $level = 0) {
+                        function displayResponse($response, $level = 0)
+                        {
                             $username = $response['username'] ?? 'Anonymous';
                             $marginLeft = $level * 20;
                             $replyCount = count($response['children']);
-                            ?>
+                        ?>
                             <div class="border-t py-4 flex justify-between items-center group response-item border-l pl-4"
                                 data-id="<?= $response['id'] ?>"
-                                style="margin-left: <?= $marginLeft ?>px;"
-                                >
+                                style="margin-left: <?= $marginLeft ?>px;">
                                 <div class="w-full">
                                     <p class="cursor-pointer">
                                         <span class="font-medium"><?= htmlspecialchars($username) ?>:</span>
@@ -189,13 +182,13 @@ if ($selected_question_id) {
                             <!-- Child Replies (Initially Hidden) -->
                             <?php if (!empty($response['children'])): ?>
                                 <div class="child-comments" id="thread-<?= $response['id'] ?>"
-                                style="display: none; margin-left: <?= $marginLeft + 20 ?>px; border-left: 2px solid #ccc; padding-left: 10px;">
-                                <?php foreach ($response['children'] as $child) {
-                                    displayResponse($child, $level + 1);
-                                } ?>
+                                    style="display: none; margin-left: <?= $marginLeft + 20 ?>px; border-left: 2px solid #ccc; padding-left: 10px;">
+                                    <?php foreach ($response['children'] as $child) {
+                                        displayResponse($child, $level + 1);
+                                    } ?>
                                 </div>
                             <?php endif; ?>
-                            <?php } ?>
+                        <?php } ?>
 
                         <!-- Display all responses -->
                         <?php
@@ -238,58 +231,56 @@ if ($selected_question_id) {
         </main>
 
         <aside class="w-full sm:w-1/4 bg-white p-4 rounded shadow">
-    <h2 class="text-lg font-semibold">Latest Discussions</h2>
-    <div class="mt-2 border-t pt-2">
-        <?php if (!$username): ?>
-            <p class="text-gray-500">Sign in to join or create groups.</p>
-        <?php else: ?>
-            <?php if (count($availableGroups) > 0): ?>
-    <p class="text-gray-700">You are not part of any group. Join one of the available groups below:</p>
+            <h2 class="text-lg font-semibold">Latest Discussions</h2>
+            <div class="mt-2 border-t pt-2">
+                <?php if (!$username): ?>
+                    <p class="text-gray-500">Sign in to join or create groups.</p>
+                <?php else: ?>
+                    <?php if (count($availableGroups) > 0): ?>
+                        <p class="text-gray-700">You are not part of any group. Join one of the available groups below:</p>
 
-    <?php foreach ($availableGroups as $group): ?>
-        <div class="flex items-center mb-2">
-            <p class="text-gray-700"><?php echo htmlspecialchars($group['name']); ?></p>
+                        <?php foreach ($groups as $group): ?> <!-- Loop through all groups -->
+                            <div class="flex items-center mb-2">
+                                <p class="text-gray-700"><?php echo htmlspecialchars($group['name']); ?></p>
 
-            <?php if (in_array($group['id'], $userGroups)): ?>
-                <!-- User is part of the group -->
-                <a href="./public/groups.php?group_id=<?php echo $group['id']; ?>" 
-                   class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                   View Discussions
-                </a>
-            <?php else: ?>
-                <!-- User is not part of the group -->
-                <a href="./join_group.php?group_id=<?php echo $group['id']; ?>" 
-                   class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                   Join Group
-                </a>
-            <?php endif; ?>
-        </div>
-    <?php endforeach; ?>
+                                <?php if (in_array($group['id'], $userGroups)): ?> <!-- Check if user is a member -->
+                                    <a href="./public/groups.php?group_id=<?php echo $group['id']; ?>"
+                                        class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                        View Discussions
+                                    </a>
+                                <?php else: ?> <!-- User is not a member -->
+                                    <a href="./join_group.php?group_id=<?php echo $group['id']; ?>"
+                                        class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                        Join Group
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-gray-500">No available groups to join.</p>
+                    <?php endif; ?>
 
-<?php else: ?>
-    <p class="text-gray-500">No available groups to join.</p>
-<?php endif; ?>
-
-<!-- Button to create a new group, which should always appear -->
-<a href="./public/groups.php" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-    Create a New Group
-</a>
-        <?php endif; ?>
-    </div>
-</aside>
+                    <a href="./public/groups.php" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        Create a New Group
+                    </a>
+                <?php endif; ?>
+            </div>
+        </aside>
 
     </div>
 
 
 
-        <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
-            &copy; 2025 Question and Answer Forum
-        </footer>
+    <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
+        &copy; 2025 Question and Answer Forum
+    </footer>
 
-    <script src="js/main.js" defer>
+    <style>
         html {
             scroll-behavior: smooth;
         }
-    </script>
+    </style>
+    <script src="js/main.js" defer></script>
 </body>
+
 </html>

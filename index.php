@@ -8,6 +8,7 @@ $first_letter = $username ? strtoupper(substr($username, 0, 1)) : null;
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +17,7 @@ $first_letter = $username ? strtoupper(substr($username, 0, 1)) : null;
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
     <header class="bg-gray-700 text-white shadow-md p-4 flex flex-col md:flex-row md:justify-between items-center text-center">
@@ -49,7 +51,7 @@ $first_letter = $username ? strtoupper(substr($username, 0, 1)) : null;
             </div>
         <?php endif; ?>
     </header>
-    
+
     <div class="container mx-auto mt-4 flex flex-col  gap-4 flex-grow px-2">
         <div class="w-full flex flex-col md:flex-row justify-center items-center gap-4">
             <div class="w-full md:w-1/2 my-6 md:my-12 relative">
@@ -60,60 +62,62 @@ $first_letter = $username ? strtoupper(substr($username, 0, 1)) : null;
                             <a href="./public/signin.php" class="bg-black border border-white text-white px-4 py-2 rounded-full">Get Started</a>
                         <?php endif; ?>
 
-                            <a href="qa.php" class="bg-black border border-red-500 text-red-500 px-4 py-2 rounded-full">Go to Forum</a>
+                        <a href="qa.php" class="bg-black border border-red-500 text-red-500 px-4 py-2 rounded-full">Go to Forum</a>
                     </div>
                 </div>
             </div>
             <div id="about" class="w-full md:w-1/2 p-4 rounded-lg shadow-xs p-4 h-max">
                 <h2 class="flex justify-center items-center text-2xl font-semibold mb-2">About Us</h2>
                 <p class="mb-2 text-md md:text-lg">
-                    Welcome to our Question and Answer forum! This platform is designed for learners who want to share knowledge, 
-                    ask questions, and engage in meaningful discussions. Whether you have a complex programming question or need help 
+                    Welcome to our Question and Answer forum! This platform is designed for learners who want to share knowledge,
+                    ask questions, and engage in meaningful discussions. Whether you have a complex programming question or need help
                     understanding a concept, this is the place for you.
                 </p>
                 <p class="mb-2 text-md md:text-lg">
-                    Users can create an account and start participating in discussions right away. The platform encourages collaborative 
+                    Users can create an account and start participating in discussions right away. The platform encourages collaborative
                     learning, allowing members to upvote valuable answers and contribute their expertise.
                 </p>
                 <p class="text-md md:text-lg">
-                    We also support group discussions, so learners can form study groups and collaborate on topics of interest. Our 
-                    mission is to create a community-driven space where knowledge flows freely, just like Stack Overflow but tailored 
+                    We also support group discussions, so learners can form study groups and collaborate on topics of interest. Our
+                    mission is to create a community-driven space where knowledge flows freely, just like Stack Overflow but tailored
                     for deeper engagement and interactive learning.
                 </p>
             </div>
         </div>
-<section id="contact" class="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center py-16">
-        <h2 class="text-2xl font-semibold mb-2 flex justify-center">Contact Us</h2>
+        <section id="contact" class="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center py-16">
+            <h2 class="text-2xl font-semibold mb-2 flex justify-center">Contact Us</h2>
 
-        <form class="mb-4 flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-10 md:items-end">
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Subscribe to our Newsletter</label>
-                <div class="flex mt-2 flex-col sm:flex-row sm:items-center sm:space-x-2">
-                    <input type="email" id="email" name="email" placeholder="Enter your email"
-                        class="px-4 py-2 border rounded-l-lg focus:outline-none focus:ring focus:ring-blue-400">
-                    <button type="submit" id="subscribeButton" class="px-2 mt-2 sm:mt-0 bg-blue-600 text-white py-2 rounded-r-lg hover:bg-blue-700">
-                        Subscribe
-                    </button>
+            <form class="mb-4 flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-10 md:items-end">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Subscribe to our Newsletter</label>
+                    <div class="flex mt-2 flex-col sm:flex-row sm:items-center sm:space-x-2">
+                        <input type="email" id="email" name="email" placeholder="Enter your email"
+                            class="px-4 py-2 border rounded-l-lg focus:outline-none focus:ring focus:ring-blue-400">
+                        <button type="submit" id="subscribeButton" class="px-2 mt-2 sm:mt-0 bg-blue-600 text-white py-2 rounded-r-lg hover:bg-blue-700">
+                            Subscribe
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="">
-                <p class="text-sm font-medium text-gray-700">Email:</p>
-                <a href="mailto:qaforum@gmail.com" class="text-blue-600 hover:underline">qaforum@gmail.com</a>
-            </div>
-            <div class="">
-                <p class="text-sm font-medium text-gray-700">Phone:</p>
-                <p class="text-gray-800">+254 712 345 678</p>
-            </div>
-        </form>
-    </section>
-    <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
-        &copy; 2025 Question and Answer Forum
-    </footer>
+                <div class="">
+                    <p class="text-sm font-medium text-gray-700">Email:</p>
+                    <a href="mailto:qaforum@gmail.com" class="text-blue-600 hover:underline">qaforum@gmail.com</a>
+                </div>
+                <div class="">
+                    <p class="text-sm font-medium text-gray-700">Phone:</p>
+                    <p class="text-gray-800">+254 712 345 678</p>
+                </div>
+            </form>
+        </section>
+        <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
+            &copy; 2025 Question and Answer Forum
+        </footer>
 
-    <script src="js/main.js" defer>
-        html {
-            scroll-behavior: smooth;
-        }
-    </script>
+        <style>
+            html {
+                scroll-behavior: smooth;
+            }
+        </style>
+        <script src="js/main.js" defer></script>
 </body>
+
 </html>
