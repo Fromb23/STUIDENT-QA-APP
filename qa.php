@@ -194,11 +194,20 @@ if ($selected_question_id) {
         </main>
 
         <aside class="w-full sm:w-1/4 bg-white p-4 rounded shadow">
-            <h2 class="text-lg font-semibold">Latest Discussions</h2>
-            <div class="mt-2 border-t pt-2">
-                <p class="text-sm text-gray-600">No discussions yet...</p>
-            </div>
-        </aside>
+    <h2 class="text-lg font-semibold">Latest Discussions</h2>
+    <div class="mt-2 border-t pt-2">
+        <?php if (!$username): ?>
+            <p class="text-gray-500">Sign in to join or create groups.</p>
+        <?php else: ?>
+            <p class="text-gray-700">Join or create a group to start discussing!</p>
+
+            <a href="./public/groups.php" class="mt-2 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Manage Groups
+            </a>
+        <?php endif; ?>
+    </div>
+</aside>
+
     </div>
 
 
