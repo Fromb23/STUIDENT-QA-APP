@@ -14,6 +14,12 @@ if ($group_id) {
     $group = $groupsModel->getGroupById($group_id);
     $members = $groupsModel->getMembers($group_id);
     $messages = $groupsModel->getGroupMessages($group_id);
+    $is_admin = $groupsModel->isUserAdmin($group_id, $_SESSION['user_id']);
+    if ($is_admin) {
+        $user_role = 'admin';
+    } else {
+        $user_role = 'member';
+    }
 } else {
     $groups = $groupsModel->getAllGroups();
 }
@@ -56,8 +62,8 @@ if ($group_id) {
             <button type="submit" class="w-full bg-blue-500 text-white mt-2 py-2 rounded-lg hover:bg-blue-700">Send</button>
         </form>
 
-        <?php if ($group['created_by_name'] == $_SESSION['user_id']): ?>
-            <!-- Admin Actions -->
+        <?php if ($group['created_by_name'] == $_SESSION['user_id'] || $user_role === 'admin'): ?>
+            <!-- Admin Actions for Group Creator or Admin -->
             <h3 class="text-xl font-semibold mt-4">Admin Actions</h3>
             <form method="POST" action="../processes/groups.php?group_id=<?php echo $group_id; ?>">
                 <input type="text" name="rename_group" placeholder="Rename Group" required class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300">
@@ -65,6 +71,7 @@ if ($group_id) {
             </form>
             <a href="../processes/groups.php?delete_group=<?php echo $group_id; ?>" class="block text-center bg-red-500 text-white mt-2 py-2 rounded-lg hover:bg-red-700">Delete Group</a>
         <?php endif; ?>
+
     </div>
 <?php else: ?>
     <!-- Available groups section -->
