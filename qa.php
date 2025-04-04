@@ -3,6 +3,50 @@ session_start();
 require __DIR__ . "/config/db.php";
 require __DIR__ . "/models/Question.php";
 require __DIR__ . "/models/Response.php";
+require __DIR__ . "/models/Groups.php";
+
+$groupsModel = new Groups($conn);
+$groups = $groupsModel->getAllGroups();
+$userGroups = [];
+
+$query_user_group = "SELECT g.id, g.name, g.description 
+                    FROM groups g
+                    JOIN user_groups ug ON g.id = ug.group_id
+                    WHERE ug.user_id = ?";
+$stst_user_group = $conn->prepare($query_user_group);
+
+if ($stst_user_group === false) {
+    die("Prepare failed: " . $conn->error);
+}
+
+$stst_user_group->bind_param("i", $_SESSION['user_id']);
+$stst_user_group->execute();
+$result_user_group = $stst_user_group->get_result();
+
+
+if ($result_user_group->num_rows > 0) {
+    $in_group = true;
+} else {
+    $in_group = false;
+}
+
+$available_groups = [];
+
+foreach ($groups as $group) {
+    $groupId = $group['id'];
+    $checkQuery = "SELECT * FROM user_groups WHERE group_id = ? AND user_id = ?";
+    $stmt_check = $conn->prepare($checkQuery);
+    $stmt_check->bind_param('ii', $groupId, $userId);
+    $stmt_check->execute();
+    $result = $stmt_check->get_result();
+
+    if ($result->num_rows == 0) {
+        $availableGroups[] = $group;
+    }
+}
+while ($row = $result_user_group->fetch_assoc()) {
+    $userGroups[] = $row['id'];
+}
 
 $questionModel = new Question($conn);
 $questions = $questionModel->getAllQuestions();
@@ -199,11 +243,37 @@ if ($selected_question_id) {
         <?php if (!$username): ?>
             <p class="text-gray-500">Sign in to join or create groups.</p>
         <?php else: ?>
-            <p class="text-gray-700">Join or create a group to start discussing!</p>
+            <?php if (count($availableGroups) > 0): ?>
+    <p class="text-gray-700">You are not part of any group. Join one of the available groups below:</p>
 
-            <a href="./public/groups.php" class="mt-2 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Manage Groups
-            </a>
+    <?php foreach ($availableGroups as $group): ?>
+        <div class="flex items-center mb-2">
+            <p class="text-gray-700"><?php echo htmlspecialchars($group['name']); ?></p>
+
+            <?php if (in_array($group['id'], $userGroups)): ?>
+                <!-- User is part of the group -->
+                <a href="./view_discussions.php?group_id=<?php echo $group['id']; ?>" 
+                   class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                   View Discussions
+                </a>
+            <?php else: ?>
+                <!-- User is not part of the group -->
+                <a href="./join_group.php?group_id=<?php echo $group['id']; ?>" 
+                   class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                   Join Group
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+
+<?php else: ?>
+    <p class="text-gray-500">No available groups to join.</p>
+<?php endif; ?>
+
+<!-- Button to create a new group, which should always appear -->
+<a href="./public/groups.php" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+    Create a New Group
+</a>
         <?php endif; ?>
     </div>
 </aside>
