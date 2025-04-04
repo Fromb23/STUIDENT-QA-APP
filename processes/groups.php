@@ -5,10 +5,8 @@ require_once '../models/Groups.php';
 
 $groupsModel = new Groups($conn);
 
-// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['message'])) {
-        // Post message
         $groupsModel->postMessage(
             $_POST['group_id'],
             $_POST['user_id'],
@@ -17,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ../public/groups.php?group_id=" . $_POST['group_id']);
         exit();
     } elseif (isset($_POST['group_name'])) {
-        // Create group
         $groupsModel->create(
             $_POST['group_name'],
             $_SESSION['user_id']
@@ -40,5 +37,24 @@ if (isset($_GET['delete_group'])) {
     $groupsModel->deleteGroup($_GET['delete_group']);
     header("Location: ../public/groups.php");
     exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['group_id']) && isset($_POST['description'])) {
+        $group_id = intval($_POST['group_id']);
+        $description = trim($_POST['description']);
+
+        $result = $groupsModel->updateDescription($group_id, $description);
+
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'Description updated successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to update description.']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid input data.']);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid request method.']);
 }
 ?>

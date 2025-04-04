@@ -6,8 +6,30 @@ class Groups {
     public function __construct($db) {
         $this->conn = $db;
     }
+    public function updateDescription($group_id, $description) {
+        // Prepare the query with placeholders (`?`)
+        $query = "UPDATE groups SET description = ? WHERE id = ?";
+    
+        // Prepare the statement
+        $stmt = $this->conn->prepare($query);
+    
+        // Check if the preparation was successful
+        if ($stmt === false) {
+            die('MySQL prepare error: ' . $this->conn->error);
+        }
+    
+        // Bind parameters
+        // 's' for string, 'i' for integer
+        $stmt->bind_param("si", $description, $group_id);
+    
+        // Execute the statement and check if successful
+        if ($stmt->execute()) {
+            return true;
+        } else {
+            return false;
+        }
+    }    
 
-    // Create a new group
     public function createGroup($name, $created_by) {
         $query = "INSERT INTO " . $this->table . " (name, created_by, created_at) VALUES (?, ?, NOW())";
         $stmt = $this->conn->prepare($query);
@@ -20,17 +42,15 @@ class Groups {
         return $stmt->execute();
     }
 
-    // Fetch all groups
     public function getAllGroups() {
         $query = "SELECT * FROM " . $this->table;
-        $result = $this->conn->query($query);  // Could return false on error
-        return $result->fetch_all(MYSQLI_ASSOC); // Tries to call method on false
+        $result = $this->conn->query($query);
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Fetch a specific group
     public function getGroupById($id) {
-        $query = "SELECT g.id, g.name, g.created_at, u.username as created_by_name 
-                  FROM " . $this->table . " g
+        $query = "SELECT g.id, g.name, g.created_at, g.description, u.username as created_by_name 
+                  FROM  groups g
                   JOIN users u ON g.created_by = u.id
                   WHERE g.id = ?";
 
@@ -46,7 +66,6 @@ class Groups {
         }
     }
 
-    // Get group members
     public function getMembers($group_id) {
         $query = "SELECT u.id, u.username, u.email, gm.role, gm.joined_at 
                   FROM group_members gm
@@ -72,7 +91,6 @@ class Groups {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Get group messages
     public function getGroupMessages($group_id) {
         $query = "SELECT m.id, m.message, m.created_at, u.username 
                   FROM group_messages m

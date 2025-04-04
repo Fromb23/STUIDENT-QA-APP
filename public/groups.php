@@ -39,7 +39,16 @@ if ($group_id) {
     <!-- Group details section -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
         <h2 class="text-2xl font-semibold text-gray-700"><?php echo htmlspecialchars($group['name']); ?></h2>
-        <p class="text-gray-600"><?php echo htmlspecialchars($group['description'] ?? 'No description available'); ?></p>
+        <p id="descriptionText" class="text-gray-600 cursor-pointer p-2">
+            About: <?php echo htmlspecialchars($group['description'] ?: 'No description available.'); ?>
+        </p>
+
+        <div id="groupData" data-group-id="<?php echo $group['id']; ?>" style="display: none;"></div>
+
+        <div id="descriptionEditor" class="mt-4" style="display: none;">
+            <textarea id="descriptionInput" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Edit group description..."><?php echo htmlspecialchars($group['description']); ?></textarea>
+            <button id="updateDescriptionButton" onclick="updateDescription()" class="w-full bg-blue-500 text-white mt-2 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Update Description</button>
+        </div>
         <p class="text-gray-600">You've joined this group.</p>
 
         <h3 class="text-xl font-semibold mt-4">Group Members</h3>
@@ -116,6 +125,6 @@ if ($group_id) {
         </form>
     </div>
 <?php endif; ?>
-
+    <script src="../js/groups.js" defer></script>
 </body>
 </html>
