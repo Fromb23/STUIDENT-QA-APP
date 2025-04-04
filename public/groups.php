@@ -99,6 +99,12 @@ if ($group_id) {
                 <button type="submit" class="w-full bg-blue-500 text-white mt-2 py-2 rounded-lg hover:bg-blue-700">Send</button>
             </form>
 
+            <form method="POST" action="../processes/groups.php" class="mt-4">
+                <input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
+                <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+                <button type="submit" name="leave_group" class="w-full bg-red-500 text-white mt-2 py-2 rounded-lg hover:bg-red-700">Leave Group</button>
+            </form>
+
             <?php if ($group['created_by_name'] == $_SESSION['user_id'] || $user_role === 'admin'): ?>
                 <h3 class="text-xl font-semibold mt-4">Admin Actions</h3>
                 <form method="POST" action="../processes/groups.php?group_id=<?php echo $group_id; ?>">

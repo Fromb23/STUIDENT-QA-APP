@@ -236,7 +236,7 @@ if ($selected_question_id) {
                 <?php if (!$username): ?>
                     <p class="text-gray-500">Sign in to join or create groups.</p>
                 <?php else: ?>
-                    <?php if (count($availableGroups) > 0): ?>
+                    <?php if (isset($_SESSION["user_id"])): ?>
                         <p class="text-gray-700">You are not part of any group. Join one of the available groups below:</p>
 
                         <?php foreach ($groups as $group): ?> <!-- Loop through all groups -->
@@ -248,8 +248,8 @@ if ($selected_question_id) {
                                         class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                                         View Discussions
                                     </a>
-                                <?php else: ?> <!-- User is not a member -->
-                                    <a href="./join_group.php?group_id=<?php echo $group['id']; ?>"
+                                <?php else: ?>
+                                    <a href="./processes/groups.php?group_id=<?php echo $group['id']; ?>"
                                         class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                                         Join Group
                                     </a>
@@ -257,9 +257,8 @@ if ($selected_question_id) {
                             </div>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <p class="text-gray-500">No available groups to join.</p>
+                        <p class="text-gray-500">You are not a member of any group. Below are all the available groups:</p>
                     <?php endif; ?>
-
                     <a href="./public/groups.php" class="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Create a New Group
                     </a>
