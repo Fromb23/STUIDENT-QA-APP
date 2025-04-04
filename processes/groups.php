@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     } elseif (isset($_POST['rename_group'])) {
         // Rename group
-        $groupsModel->rename(
+        $groupsModel->renameGroup(
             $_GET['group_id'],
             $_POST['rename_group']
         );
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Handle delete action
 if (isset($_GET['delete_group'])) {
-    $groupsModel->delete($_GET['delete_group']);
+    $groupsModel->deleteGroup($_GET['delete_group']);
     header("Location: ../public/groups.php");
     exit();
 }

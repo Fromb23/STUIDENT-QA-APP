@@ -39,19 +39,45 @@ if ($group_id) {
     <!-- Group details section -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
         <h2 class="text-2xl font-semibold text-gray-700"><?php echo htmlspecialchars($group['name']); ?></h2>
+        <p class="text-gray-600"><?php echo htmlspecialchars($group['description'] ?? 'No description available'); ?></p>
         <p class="text-gray-600">You've joined this group.</p>
 
         <h3 class="text-xl font-semibold mt-4">Group Members</h3>
         <ul class="mb-4">
             <?php foreach ($members as $member): ?>
-                <li class="border p-2 rounded"><?php echo htmlspecialchars($member['username']) . " (" . $member['role'] . ")"; ?></li>
+                <ul class="mb-4">
+    <?php foreach ($members as $member): ?>
+        <li class="border p-2 rounded">
+            <?php 
+            $joined_at = strtotime($member['joined_at']);
+            $formatted_date = date("F j, Y", $joined_at); 
+            ?>
+            <?php echo htmlspecialchars($member['username']) . " (" . $member['role'] . ")"; ?>
+            <br>
+            <small class="text-gray-500">Joined on <?php echo $formatted_date; ?></small>
+        </li>
+    <?php endforeach; ?>
+        </ul>
             <?php endforeach; ?>
         </ul>
 
         <h3 class="text-xl font-semibold">Messages</h3>
-        <div class="border p-3 rounded bg-gray-50 h-40 overflow-y-auto">
+        <div class="border p-3 rounded bg-gray-50 h-70 overflow-y-auto">
             <?php foreach ($messages as $msg): ?>
-                <p><strong><?php echo htmlspecialchars($msg['username']); ?>:</strong> <?php echo htmlspecialchars($msg['message']); ?></p>
+                <?php 
+                if (isset($msg['created_at'])) {
+                    $sent_at = strtotime($msg['created_at']);
+                    $formatted_time = date("g:i a", $sent_at);
+                } else {
+                    $formatted_time = "Unknown time";
+                }
+                ?>
+                <p>
+                    <strong><?php echo htmlspecialchars($msg['username']); ?>:</strong> 
+                    <?php echo htmlspecialchars($msg['message']); ?>
+                    <br>
+                    <small class="text-gray-500"><?php echo $formatted_time; ?></small>
+                 </p>
             <?php endforeach; ?>
         </div>
 
