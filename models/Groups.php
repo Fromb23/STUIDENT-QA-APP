@@ -37,7 +37,35 @@ class Groups
         }
 
         $stmt->bind_param("si", $name, $created_by);
-        return $stmt->execute();
+        $groupCreated = $stmt->execute();
+
+        if ($groupCreated) {
+            $groupId = $this->conn->insert_id;
+
+            // Add the creator to the user_groups table as a member
+            $query_user_group = "INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)";
+            $stmt_user_group = $this->conn->prepare($query_user_group);
+
+            if (!$stmt_user_group) {
+                die("Prepare failed: " . $this->conn->error);
+            }
+
+            $stmt_user_group->bind_param("ii", $created_by, $groupId);
+            $stmt_user_group->execute();
+
+            // Now add the creator as the default admin by inserting into group_roles table
+            $query_admin_role = "INSERT INTO group_members (user_id, group_id, role) VALUES (?, ?, 'admin')";
+            $stmt_admin_role = $this->conn->prepare($query_admin_role);
+
+            if (!$stmt_admin_role) {
+                die("Prepare failed: " . $this->conn->error);
+            }
+
+            $stmt_admin_role->bind_param("ii", $created_by, $groupId);
+            return $stmt_admin_role->execute();
+        }
+
+        return false;
     }
 
     public function getAllGroups()
