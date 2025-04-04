@@ -7,22 +7,16 @@ class Groups {
         $this->conn = $db;
     }
     public function updateDescription($group_id, $description) {
-        // Prepare the query with placeholders (`?`)
         $query = "UPDATE groups SET description = ? WHERE id = ?";
     
-        // Prepare the statement
         $stmt = $this->conn->prepare($query);
-    
-        // Check if the preparation was successful
+
         if ($stmt === false) {
             die('MySQL prepare error: ' . $this->conn->error);
         }
     
-        // Bind parameters
-        // 's' for string, 'i' for integer
         $stmt->bind_param("si", $description, $group_id);
     
-        // Execute the statement and check if successful
         if ($stmt->execute()) {
             return true;
         } else {

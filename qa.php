@@ -252,7 +252,7 @@ if ($selected_question_id) {
 
             <?php if (in_array($group['id'], $userGroups)): ?>
                 <!-- User is part of the group -->
-                <a href="./view_discussions.php?group_id=<?php echo $group['id']; ?>" 
+                <a href="./public/groups.php?group_id=<?php echo $group['id']; ?>" 
                    class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                    View Discussions
                 </a>

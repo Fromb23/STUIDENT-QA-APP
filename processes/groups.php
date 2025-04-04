@@ -15,14 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ../public/groups.php?group_id=" . $_POST['group_id']);
         exit();
     } elseif (isset($_POST['group_name'])) {
-        $groupsModel->create(
+        $groupsModel->createGroup(
             $_POST['group_name'],
             $_SESSION['user_id']
         );
         header("Location: ../public/groups.php");
         exit();
     } elseif (isset($_POST['rename_group'])) {
-        // Rename group
         $groupsModel->renameGroup(
             $_GET['group_id'],
             $_POST['rename_group']
@@ -32,7 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle delete action
 if (isset($_GET['delete_group'])) {
     $groupsModel->deleteGroup($_GET['delete_group']);
     header("Location: ../public/groups.php");
