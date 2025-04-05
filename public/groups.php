@@ -33,6 +33,8 @@ if ($group_id) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Groups</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 </head>
 
 <body class="bg-gray-100 p-6">
@@ -73,30 +75,32 @@ if ($group_id) {
             </ul>
 
             <h3 class="text-xl font-semibold">Messages</h3>
-            <div class="border p-3 rounded bg-gray-50 h-70 overflow-y-auto">
+            <div class="border p-3 rounded  bg-gray-50 h-70 overflow-y-auto space-x-2">
                 <?php foreach ($messages as $msg): ?>
                     <?php
-                    if (isset($msg['created_at'])) {
-                        $sent_at = strtotime($msg['created_at']);
-                        $formatted_time = date("g:i a", $sent_at);
-                    } else {
-                        $formatted_time = "Unknown time";
-                    }
+                    $sent_at = isset($msg['created_at']) ? strtotime($msg['created_at']) : time();
+                    $formatted_time = date("g:i A", $sent_at);
+                    $is_me = $msg['username'] === $member['username'];
                     ?>
-                    <p>
-                        <strong><?php echo htmlspecialchars($msg['username']); ?>:</strong>
-                        <?php echo htmlspecialchars($msg['message']); ?>
-                        <br>
-                        <small class="text-gray-500"><?php echo $formatted_time; ?></small>
-                    </p>
+                    <div class="flex <?php echo $is_me ? 'justify-start' : 'justify-end'; ?> mb-3">
+                        <div class="max-w-xs p-2 rounded-lg 
+                        <?php echo $is_me ? 'bg-blue-100 text-left' : 'bg-blue-100 text-right'; ?>">
+                            <strong><?php echo htmlspecialchars($msg['username']); ?>:</strong>
+                            <?php echo htmlspecialchars($msg['message']); ?>
+                            <p class="text-xs text-gray-500"><?php echo $formatted_time; ?></p>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
             </div>
 
             <form method="POST" action="../processes/groups.php" class="mt-4">
                 <input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
                 <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
-                <input type="text" name="message" placeholder="Type a message..." required class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300">
-                <button type="submit" class="w-full bg-blue-500 text-white mt-2 py-2 rounded-lg hover:bg-blue-700">Send</button>
+                <div class="flex gap-2">
+                    <input type="text" name="message" placeholder="Type a message..." required class="flex-grow px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-paper-plane"></i></button>
+                </div>
             </form>
 
             <form method="POST" action="../processes/groups.php" class="mt-4">

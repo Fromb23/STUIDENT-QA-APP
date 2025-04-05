@@ -7,7 +7,8 @@ require __DIR__ . "/models/Groups.php";
 
 $userId = $_SESSION['user_id'] ?? null;
 if (!$userId) {
-    die("User is not logged in.");
+    header("Location: public/signin.php");
+    exit;
 }
 
 $groupsModel = new Groups($conn);
