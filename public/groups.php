@@ -53,38 +53,57 @@ if ($group_id) {
                 <textarea id="descriptionInput" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Edit group description..."><?php echo htmlspecialchars($group['description']); ?></textarea>
                 <button id="updateDescriptionButton" onclick="updateDescription()" class="w-full bg-blue-500 text-white mt-2 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Update Description</button>
             </div>
-            <p class="text-gray-600">You've joined this group.</p>
 
             <h3 class="text-xl font-semibold mt-4">Group Members</h3>
+
+            <?php
+            $current_user = $_SESSION['username'];
+            $is_current_user = false;
+            ?>
+
             <ul class="mb-4">
                 <?php foreach ($members as $member): ?>
-                    <ul class="mb-4">
-                        <?php foreach ($members as $member): ?>
-                            <li class="border p-2 rounded">
-                                <?php
-                                $joined_at = strtotime($member['joined_at']);
-                                $formatted_date = date("F j, Y", $joined_at);
-                                ?>
-                                <?php echo htmlspecialchars($member['username']) . " (" . $member['role'] . ")"; ?>
-                                <br>
-                                <small class="text-gray-500">Joined on <?php echo $formatted_date; ?></small>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+                    <?php if ($member['username'] === $current_user): ?>
+                        <li class="border p-2 rounded">
+                            <?php
+                            $joined_at = strtotime($member['joined_at']);
+                            $formatted_date = date("F j, Y", $joined_at);
+                            ?>
+                            You joined this group on <?php echo $formatted_date; ?>
+                        </li>
+                        <?php $is_current_user = true; ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+
+                <?php if (!$is_current_user): ?>
+                    <p>You are not part of this group.</p>
+                <?php endif; ?>
+            </ul>
+
+            <h4 class="mt-4">Other Group Members</h4>
+            <ul class="mb-4 flex flex-wrap gap-2">
+                <?php foreach ($members as $member): ?>
+                    <?php if ($member['username'] !== $current_user): ?>
+                        <li class="border p-2 rounded">
+                            <?php echo htmlspecialchars($member['username']); ?>
+                        </li>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </ul>
 
-            <h3 class="text-xl font-semibold">Messages</h3>
-            <div class="border p-3 rounded  bg-gray-50 h-70 overflow-y-auto space-x-2">
+
+            <h3 class="text-xl font-semibold"><i class="fas fa-comments mr-2"></i> Messages</h3>
+
+            <!-- Fixed height with scrolling -->
+            <div class="border p-3 rounded bg-gray-50 overflow-y-auto space-x-2" style="height: 300px;"> <!-- Using inline style for height -->
                 <?php foreach ($messages as $msg): ?>
                     <?php
                     $sent_at = isset($msg['created_at']) ? strtotime($msg['created_at']) : time();
-                    $formatted_time = date("g:i A", $sent_at);
+                    $formatted_time = date("g:i a", $sent_at);
                     $is_me = $msg['username'] === $member['username'];
                     ?>
                     <div class="flex <?php echo $is_me ? 'justify-start' : 'justify-end'; ?> mb-3">
-                        <div class="max-w-xs p-2 rounded-lg 
-                        <?php echo $is_me ? 'bg-blue-100 text-left' : 'bg-blue-100 text-right'; ?>">
+                        <div class="max-w-xs p-2 rounded-lg <?php echo $is_me ? 'bg-blue-100 text-left' : 'bg-blue-100 text-right'; ?>">
                             <strong><?php echo htmlspecialchars($msg['username']); ?>:</strong>
                             <?php echo htmlspecialchars($msg['message']); ?>
                             <p class="text-xs text-gray-500"><?php echo $formatted_time; ?></p>
