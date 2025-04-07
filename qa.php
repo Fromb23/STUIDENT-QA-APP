@@ -129,7 +129,6 @@ if ($selected_question_id) {
                 <div id="response-section" class="mt-4">
                     <div id="response-list" class="mt-2 border-t pt-2 text-gray-700">
                         <?php
-                        // Recursive function to display responses
                         function displayResponse($response, $level = 0)
                         {
                             $username = $response['username'] ?? 'Anonymous';
@@ -245,8 +244,7 @@ if ($selected_question_id) {
                                 <p class="text-gray-700"><?php echo htmlspecialchars($group['name']); ?></p>
 
                                 <?php if (in_array($group['id'], $userGroups)): ?> <!-- Check if user is a member -->
-                                    <a href="./public/groups.php?group_id=<?php echo $group['id']; ?>"
-                                        class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    <a href="javascript:void(0)" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 view-group" data-group-id="<?php echo $group['id']; ?>">
                                         View Discussions
                                     </a>
                                 <?php else: ?>
@@ -268,8 +266,6 @@ if ($selected_question_id) {
         </aside>
 
     </div>
-
-
 
     <footer class="bg-gray-900 text-white text-center p-2 mt-auto">
         &copy; 2025 Question and Answer Forum

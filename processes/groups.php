@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['user_id'],
             $_POST['message']
         );
-        header("Location: ../public/groups.php?group_id=" . $_POST['group_id']);
+        header("Location: ../qa.php?group_id=" . $_POST['group_id']);
         exit();
     } elseif (isset($_POST['group_name'])) {
         $groupsModel->createGroup(
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_GET['group_id'],
             $_POST['rename_group']
         );
-        header("Location: ../public/groups.php?group_id=" . $_GET['group_id']);
+        header("Location: ./qa.php?group_id=" . $_GET['group_id']);
         exit();
     }
 }

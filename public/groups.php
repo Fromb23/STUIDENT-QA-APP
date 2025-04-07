@@ -9,6 +9,7 @@ $group_id = $_GET['group_id'] ?? null;
 $group = null;
 $members = [];
 $messages = [];
+$groups = $groupsModel->getAllGroups();
 
 if ($group_id) {
     $group = $groupsModel->getGroupById($group_id);
@@ -20,8 +21,6 @@ if ($group_id) {
     } else {
         $user_role = 'member';
     }
-} else {
-    $groups = $groupsModel->getAllGroups();
 }
 ?>
 
@@ -33,14 +32,17 @@ if ($group_id) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Groups</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script src="vendor/emoji-picker/lib/js/config.js"></script>
+    <script src="vendor/emoji-picker/lib/js/util.js"></script>
+    <script src="vendor/emoji-picker/lib/js/jquery.emojiarea.js"></script>
+    <script src="vendor/emoji-picker/lib/js/emoji-picker.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
 </head>
 
 <body class="bg-gray-100 p-6">
 
-    <?php if ($group): ?>
-        <!-- Group details section -->
+    <?php if ($group_id && $group): ?>
         <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
             <h2 class="text-2xl font-semibold text-gray-700"><?php echo htmlspecialchars($group['name']); ?></h2>
             <p id="descriptionText" class="text-gray-600 cursor-pointer p-2">
@@ -93,9 +95,7 @@ if ($group_id) {
 
 
             <h3 class="text-xl font-semibold"><i class="fas fa-comments mr-2"></i> Messages</h3>
-
-            <!-- Fixed height with scrolling -->
-            <div class="border p-3 rounded bg-gray-50 overflow-y-auto space-x-2" style="height: 300px;"> <!-- Using inline style for height -->
+            <div class="border p-3 rounded bg-gray-50 overflow-y-auto space-x-2" style="height: 300px;">
                 <?php foreach ($messages as $msg): ?>
                     <?php
                     $sent_at = isset($msg['created_at']) ? strtotime($msg['created_at']) : time();
@@ -112,15 +112,27 @@ if ($group_id) {
                 <?php endforeach; ?>
             </div>
 
-            <form method="POST" action="../processes/groups.php" class="mt-4">
+            <form method="POST" class="mt-4" id="messageForm">
                 <input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
                 <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
                 <div class="flex gap-2">
-                    <input type="text" name="message" placeholder="Type a message..." required class="flex-grow px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300">
+                    <!-- Message input field -->
+                    <textarea name="message" id="message" placeholder="Type a message..." required class="flex-grow px-4 py-2 border rounded-lg focus:ring focus:ring-blue-300" data-emojiable="true" data-emoji-input="unicode"></textarea>
+
+                    <!-- Emoji button -->
+                    <button type="button" id="emojiButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-smile"></i>
+                    </button>
+
+                    <!-- Submit button -->
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-paper-plane"></i></button>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
                 </div>
             </form>
+
+            <!-- Emoji Picker container -->
+            <div id="emojiPicker" class="emoji-picker-container"></div>
 
             <form method="POST" action="../processes/groups.php" class="mt-4">
                 <input type="hidden" name="group_id" value="<?php echo $group_id; ?>">

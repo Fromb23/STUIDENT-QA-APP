@@ -71,3 +71,15 @@ document
       updateDescription();
     }
   });
+
+$(document).ready(function () {
+  $("#message").emojioneArea({
+    pickerPosition: "top",
+    tones: false,
+    buttonTitle: "Pick an emoji",
+  });
+
+  $("#emojiButton").click(function () {
+    $("#message").emojioneArea().toggle();
+  });
+});
